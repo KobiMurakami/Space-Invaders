@@ -8,32 +8,76 @@ public class EnemyMovement : MonoBehaviour
 {
 
     private Rigidbody2D rb;
-    public float moveSpeed = 2f;
+    public float moveSpeed = 30f;
     public GameObject EnemyBlock;
-    public double moveTime;
+    public float moveDistance = 5f;
+    public float downDistance = 3f;
+    public float moveInterval = 1f;
+
+    private bool movingRight = true;
+    private Vector3 moveDirection;
+    private float moveTime;
 
     // Start is called before the first frame update
     void Start()
     {
-        rb = EnemyBlock.GetComponent<Rigidbody2D>();
-        moveTime = Math.Round(Time.time);
+        moveTime = Time.time;
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    private void Update()
     {
-        while(true) {
-            while(rb.position.x > -8) {
-                rb.velocity = new Vector2(-moveSpeed, rb.velocity.x);
+        if (Time.time - moveTime >= moveInterval)
+        {
+            moveTime = Time.time;
+
+            // Move the grid in the current direction
+            EnemyBlock.transform.Translate(moveDirection * moveSpeed * Time.deltaTime);
+
+            // If we have reached the end of the allowed movement, change direction
+            if (EnemyBlock.transform.position.x >= moveDistance && movingRight)
+            {
+                movingRight = false;
+                moveDirection = Vector3.left;
+                // Move down after reaching the end
+                EnemyBlock.transform.Translate(Vector3.down * downDistance);
             }
-            rb.velocity = new Vector2(0, rb.velocity.y);
-            moveTime = Math.Round(Time.time);
-            while(Math.Round(Time.time) - moveTime < 2) {
-                rb.velocity = new Vector2(-moveSpeed, rb.velocity.y);
-            }
-            while(rb.position.x < 8) {
-                rb.velocity = new Vector2(moveSpeed, rb.velocity.x);
+            else if (EnemyBlock.transform.position.x <= -moveDistance && !movingRight)
+            {
+                movingRight = true;
+                moveDirection = Vector3.right;
+                // Move down after reaching the end
+                EnemyBlock.transform.Translate(Vector3.down * downDistance);
             }
         }
     }
+
+    // void MovementUpdates() {
+    //     rb.velocity = new Vector2(-moveSpeed, rb.velocity.x);
+    //     // while(rb.position.x > -8) {
+            
+    //     // }
+    //     rb.velocity = new Vector2(0, rb.velocity.y);
+
+    //     // moveTime = Math.Round(Time.time);
+    //     // rb.velocity = new Vector2(-moveSpeed, rb.velocity.y);
+    //     // while(Math.Round(Time.time) - moveTime < 2) {
+            
+    //     // }
+    //     // rb.velocity = new Vector2(0, rb.velocity.y);
+
+    //     rb.velocity = new Vector2(moveSpeed, rb.velocity.x);
+    //     // while(rb.position.x < 8) {
+            
+    //     // }
+    //     rb.velocity = new Vector2(0, rb.velocity.y);
+
+    //     // moveTime = Math.Round(Time.time);
+    //     // rb.velocity = new Vector2(-moveSpeed, rb.velocity.y);
+    //     // while(Math.Round(Time.time) - moveTime < 2) {
+            
+    //     // }
+    //     // rb.velocity = new Vector2(0, rb.velocity.y);
+    //     // MovementUpdates();
+    // }
 }
