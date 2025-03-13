@@ -13,12 +13,16 @@ public class Enemy : MonoBehaviour
     public delegate void EnemyDied(String type);
     public static event EnemyDied OnEnemyDied;
     public double lastShotTime;
+    public Animator enemyAnimator;
+    public GameObject death;
+    public AudioSource audioSource;
 
 
     // Start is called before the first frame update
     void OnCollisionEnter2D(Collision2D collision)
     {
       Debug.Log("Ouch!");
+      GameObject dead = Instantiate(death, this.gameObject.GetComponent<Transform>().position, Quaternion.identity);
       Destroy(collision.gameObject);
       Destroy(this.gameObject);
 
@@ -38,12 +42,17 @@ public class Enemy : MonoBehaviour
 
     void Start() {
       lastShotTime = Math.Round(Time.time);
+      enemyAnimator = GetComponent<Animator>();
+      audioSource = GetComponent<AudioSource>();
     }
 
     void Update() {
       if(this.name == "RedEnemy") {
         if(Time.time - lastShotTime > 3) {
           GameObject shot = Instantiate(bullet, shootingOffset.position, Quaternion.identity);
+          audioSource.Play();
+          Debug.Log("Setting Enemy Shoot Trigger");
+          enemyAnimator.SetTrigger("enemyShoot");
           Debug.Log("Bang!");
           Destroy(shot, 8f);
           lastShotTime = Math.Round(Time.time);

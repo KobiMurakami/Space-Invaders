@@ -10,12 +10,14 @@ public class ScoreTracker : MonoBehaviour
 {
     public TextMeshProUGUI CurrentScoreText;
     public TextMeshProUGUI HiScoreScoreText;
+    public int numberEnemiesKilled;
 
     // Start is called before the first frame update
     void Start()
     {
         Enemy.OnEnemyDied += EnemyOnOnEnemyDied;
         Player.OnPlayerDied += PlayerOnOnPlayerDied;
+        numberEnemiesKilled = 0;
         int highScore = PlayerPrefs.GetInt("HiScore", -1);
         if(highScore == -1) {
             Debug.Log("No high score set yet, defaulting to 0000");
@@ -31,7 +33,9 @@ public class ScoreTracker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(numberEnemiesKilled >= 8) {
+            PlayerWon();
+        }
     }
 
     void EnemyOnOnEnemyDied(String type) {
@@ -58,6 +62,7 @@ public class ScoreTracker : MonoBehaviour
 
         newScoreText = score.ToString("D4");
         CurrentScoreText.text = newScoreText;
+        numberEnemiesKilled += 1;
     }
 
     void PlayerOnOnPlayerDied() {
@@ -72,5 +77,21 @@ public class ScoreTracker : MonoBehaviour
             PlayerPrefs.Save();
             Debug.Log("New High Score Set: " + score);
         }
+        PlayerPrefs.SetInt("LastScore", score);
+    }
+
+    void PlayerWon() {
+        Debug.Log("You Won!");
+        String scoreText = CurrentScoreText.text;
+        Debug.Log("Fetching Score to Compare: " + scoreText);
+        int score = Int32.Parse(scoreText);
+        int highScore = PlayerPrefs.GetInt("HiScore", -1);
+        Debug.Log("Comparing: " + score + " vs " + highScore);
+        if(score > highScore || highScore == -1) {
+            PlayerPrefs.SetInt("HiScore", score);
+            PlayerPrefs.Save();
+            Debug.Log("New High Score Set: " + score);
+        }
+        PlayerPrefs.SetInt("LastScore", score);
     }
 }
